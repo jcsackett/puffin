@@ -20,32 +20,42 @@ Useful actions:
 -v --version get version number
 """
 
+def init_posts():
+    try:
+        os.mkdir('posts')
+    except OSError:
+        pass
+
+def get_files(dest):
+    files = list()
+    if os.path.isfile(dest):
+        files.append(dest)
+    elif os.path.isdir(dest):
+        files.extend([os.path.join(dest, o) for o in os.listdir(dest)])
+    return [f for f in files if not os.path.isdir(f)]
+
+def process_files(file_list):
+    print 'Processing %s...' % files
+    for f in files:    
+        directory, filename = os.path.split(f)
+        text = file(f).read()
+        html = markdown2.markdown(text)
+        outfile = os.path.join(directory, 'posts', filename)
+        file(outfile, 'w').write(html)
+
+def print_version():
+    print "puffin publishing system %d.%d" % (MAJOR, MINOR)
+    exit()
+    
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-p", "--process", action="store", type="string", dest="target")
     parser.add_option("-v", "--version", action="store_true", dest="version")
+    parser.add_optioN("-s", "--start", action="store_true", dest="start")
     (options, args) = parser.parse_args(sys.argv)
     
-    if options.version:
-        print "puffin publishing system %d.%d" % (MAJOR, MINOR)
-        exit()
+    if options.version: print_version()
+    elif options.start: init_posts()
     elif options.target:
-        files = list()
-        if os.path.isfile(options.target):
-            files.append(options.target)
-        elif os.path.isdir(options.target):
-            files.extend([os.path.join(options.target, o) for o in os.listdir(options.target)])
-        files = [f for f in files if not os.path.isdir(f)]
-        print "Processing %s..." % ", ".join(files)
-        for f in files:
-                
-            directory, filename = os.path.split(f)
-            try:
-                os.mkdir(os.path.join(directory, 'posts'))
-            except OSError:
-                pass
-            text = file(f).read()
-            html = markdown2.markdown(text)
-            outfile = os.path.join(directory, 'posts', filename)
-            file(outfile, 'w').write(html)
-    
+        file_list = get_files(options.target)
+        process_files(file_list)
