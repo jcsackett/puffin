@@ -19,28 +19,43 @@ Useful actions:
 -p --process [DIRECTORY] process all files in the directory
 -v --version get version number
 """
-
+class file_pair:
+    read_path = ''
+    write_path = ''
+    
+    def __init__(self, file_path, dest):
+        self.read_path = file_path
+        self.write_path = file_path.replace(dest, '').replace('//', '/')
+    
 def init_posts():
     try:
         os.mkdir('posts')
     except OSError:
-        pass
+        print 'Post directory already exists.'
 
 def get_files(dest):
-    files = list()
-    if os.path.isfile(dest):
-        files.append(dest)
-    elif os.path.isdir(dest):
-        files.extend([os.path.join(dest, o) for o in os.listdir(dest)])
-    return [f for f in files if not os.path.isdir(f)]
+    files = []
+    for root, ds, fs in os.walk(dest):
+        for name in fs:
+            if name[0] == ".": continue
+            path = os.path.join(root, name)
+            f = file_pair(path,dest)
+            files.append(f)
+    return files
 
 def process_files(file_list):
-    print 'Processing %s...' % files
-    for f in files:    
-        directory, filename = os.path.split(f)
-        text = file(f).read()
+    print 'Processing %s...' % file_list
+    for f in file_list:    
+        os.path.split(f.read_path)
+        text = file(f.read_path).read()
         html = markdown2.markdown(text)
-        outfile = os.path.join(directory, 'posts', filename)
+        outfile = os.path.join('posts', f.write_path)
+        new_folder = os.path.split(outfile)[0]
+        try:
+            os.mkdir(new_folder)
+        except OSError:
+            print "%s already exists; skipping creation." % new_folder
+            pass
         file(outfile, 'w').write(html)
 
 def print_version():
@@ -51,7 +66,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-p", "--process", action="store", type="string", dest="target")
     parser.add_option("-v", "--version", action="store_true", dest="version")
-    parser.add_optioN("-s", "--start", action="store_true", dest="start")
+    parser.add_option("-s", "--start", action="store_true", dest="start")
     (options, args) = parser.parse_args(sys.argv)
     
     if options.version: print_version()
