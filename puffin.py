@@ -6,10 +6,13 @@ puffin.py
 written by j.c.sackett on 2.19.2009
 """
 from optparse import OptionParser
-import markdown2
+from jinja2 import Environment, PackageLoader
+
 import sys
 import os
-from jinja2 import Environment, PackageLoader
+import markdown2
+import subprocess
+
 
 MAJOR = 0
 MINOR = 1
@@ -29,7 +32,7 @@ class file_pair:
     
     def __init__(self, file_path, dest):
         self.read_path = file_path
-        self.write_path = file_path.replace(dest, '').replace('//', '/')
+        self.write_path = file_path.replace(dest, '').replace('//', '/').replace('.txt', '.html')
     
 def init_posts():
     try:
@@ -53,6 +56,7 @@ def process_files(file_list):
         os.path.split(f.read_path)
         text = file(f.read_path).read()
         html = markdown2.markdown(text)
+        html = create_detail(html)
         outfile = os.path.join('posts', f.write_path)
         new_folder = os.path.split(outfile)[0]
         try:
@@ -62,18 +66,24 @@ def process_files(file_list):
             pass
         file(outfile, 'w').write(html)
 
-def create_detail(f):
+def create_detail(post):
+    template = ENV.get_template('detail.jinja')
+    return template.render(**{'post':post})
     
 
 def print_version():
     print "puffin publishing system %d.%d" % (MAJOR, MINOR)
     exit()
     
+def preview(f):
+    browser = subprocess.Popen('open /Applications/Safari.app "%s"' % f, shell=True)
+    
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-p", "--process", action="store", type="string", dest="target")
     parser.add_option("-v", "--version", action="store_true", dest="version")
     parser.add_option("-s", "--start", action="store_true", dest="start")
+    parser.add_option("-r", "--preview", action="store", dest="preview")
     (options, args) = parser.parse_args(sys.argv)
     
     if options.version: print_version()
@@ -81,3 +91,6 @@ if __name__ == '__main__':
     elif options.target:
         file_list = get_files(options.target)
         process_files(file_list)
+    elif options.preview:
+        preview(options.preview)
+        
