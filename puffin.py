@@ -9,9 +9,13 @@ from optparse import OptionParser
 import markdown2
 import sys
 import os
+from jinja2 import Environment, PackageLoader
 
 MAJOR = 0
 MINOR = 1
+
+ENV = Environment(loader=PackageLoader('puffin', 'templates'))
+
 
 """
 Useful actions:
@@ -57,6 +61,9 @@ def process_files(file_list):
             print "%s already exists; skipping creation." % new_folder
             pass
         file(outfile, 'w').write(html)
+
+def create_detail(f):
+    
 
 def print_version():
     print "puffin publishing system %d.%d" % (MAJOR, MINOR)
