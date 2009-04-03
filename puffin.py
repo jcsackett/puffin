@@ -34,11 +34,11 @@ class file_pair:
         self.read_path = file_path
         self.write_path = file_path.replace(dest, '').replace('//', '/').replace('.txt', '.html')
     
-def init_posts():
+def init_posts(output_dir):
     try:
         os.mkdir('posts')
     except OSError:
-        print 'Post directory already exists.'
+        print 'Post directory already exists. Use -r or --rebuild to force overwrite.'
 
 def get_files(dest):
     files = []
@@ -50,19 +50,18 @@ def get_files(dest):
             files.append(f)
     return files
 
-def process_files(file_list):
-    print 'Processing %s...' % file_list
+def process_files(file_list, output_dir):
+    print 'Processing %s...' % [f.read_path for f in file_list]
     for f in file_list:    
         os.path.split(f.read_path)
         text = file(f.read_path).read()
         html = markdown2.markdown(text)
         html = create_detail(html)
-        outfile = os.path.join('posts', f.write_path)
+        outfile = os.path.join(output_dir, f.write_path)
         new_folder = os.path.split(outfile)[0]
         try:
             os.mkdir(new_folder)
         except OSError:
-            print "%s already exists; skipping creation." % new_folder
             pass
         file(outfile, 'w').write(html)
 
@@ -77,20 +76,27 @@ def print_version():
     
 def preview(f):
     browser = subprocess.Popen('open /Applications/Safari.app "%s"' % f, shell=True)
+    exit()
     
 if __name__ == '__main__':
+    output_dir = 'posts'
+    
     parser = OptionParser()
-    parser.add_option("-p", "--process", action="store", type="string", dest="target")
+    parser.add_option("-p", "--preview", action="store", type="string", dest="preview")
     parser.add_option("-v", "--version", action="store_true", dest="version")
-    parser.add_option("-s", "--start", action="store_true", dest="start")
-    parser.add_option("-r", "--preview", action="store", dest="preview")
+    parser.add_option("-r", "--rebuild", action="store_true", dest="rebuild")
+    parser.add_option("-o", "--output-path", action="store", type="string", dest="output_dir")
     (options, args) = parser.parse_args(sys.argv)
     
-    if options.version: print_version()
-    elif options.start: init_posts()
-    elif options.target:
-        file_list = get_files(options.target)
-        process_files(file_list)
-    elif options.preview:
-        preview(options.preview)
+    if options.output_dir: output_dir = options.output_dir
+    if options.version:    print_version()
+    if options.preview:    preview(options.preview)
+    if options.rebuild:    os.rmdir(output_dir)
+    
+    target = args[1]
+    print target
+    init_posts(output_dir)
+    file_list = get_files(target)
+    process_files(file_list, output_dir)
+    
         
