@@ -19,14 +19,14 @@ MINOR = 1
 ENV = Environment(loader=PackageLoader('puffin', 'templates'))
 
 class post:
-    read_path = ''
-    write_path = ''
-    
     def __init__(self, file_path, dest):
         self.read_path = file_path
         self.write_path = file_path.replace(dest, '').replace('//', '/').replace('.txt', '.html')
-        self.title = os.path.split(file_path)[-1]
-        self.url = self.write_path[1:]
+        self.title = os.path.split(file_path)[-1].split('.')[0].replace('_', ' ')
+        if self.write_path.startswith('/'):
+            self.url = self.write_path[1:]
+        else:
+            self.url = self.write_path
         self.content = ''
         
 def init_posts(output_dir):
