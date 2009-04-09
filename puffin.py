@@ -13,30 +13,25 @@ import os
 import markdown2
 import subprocess
 
-
 MAJOR = 0
 MINOR = 1
 
 ENV = Environment(loader=PackageLoader('puffin', 'templates'))
 
-
-"""
-Useful actions:
--p --process [FILE] process a file
--p --process [DIRECTORY] process all files in the directory
--v --version get version number
-"""
-class file_pair:
+class post:
     read_path = ''
     write_path = ''
     
     def __init__(self, file_path, dest):
         self.read_path = file_path
         self.write_path = file_path.replace(dest, '').replace('//', '/').replace('.txt', '.html')
-    
+        self.title = os.path.split(file_path)[-1]
+        self.url = self.write_path[1:]
+        self.content = ''
+        
 def init_posts(output_dir):
     try:
-        os.mkdir('posts')
+        os.mkdir(output_dir)
     except OSError:
         print 'Post directory already exists. Use -r or --rebuild to force overwrite.'
 
@@ -46,29 +41,35 @@ def get_files(dest):
         for name in fs:
             if name[0] == ".": continue
             path = os.path.join(root, name)
-            f = file_pair(path,dest)
+            f = post(path,dest)
             files.append(f)
     return files
 
 def process_files(file_list, output_dir):
-    print 'Processing %s...' % [f.read_path for f in file_list]
+    print 'Processing markdown for %s...' % [f.read_path for f in file_list]
     for f in file_list:    
         os.path.split(f.read_path)
         text = file(f.read_path).read()
-        html = markdown2.markdown(text)
-        html = create_detail(html)
-        outfile = os.path.join(output_dir, f.write_path)
-        new_folder = os.path.split(outfile)[0]
-        try:
-            os.mkdir(new_folder)
-        except OSError:
-            pass
-        file(outfile, 'w').write(html)
-
-def create_detail(post):
+        f.content = markdown2.markdown(text)
+        
+def create_page(post):
+    print post.content
     template = ENV.get_template('detail.jinja')
-    return template.render(**{'post':post})
+    html = template.render(post=post)
+    outfile = os.path.join(output_dir, post.write_path)
+    new_folder = os.path.split(outfile)[0]
+    try:
+        os.mkdir(new_folder)
+    except OSError:
+        pass
+    file(outfile, 'w').write(html)
     
+    
+def create_frontpage(post_list, top_dir):
+    template = ENV.get_template('frontpage.jinja')
+    html = template.render(posts=post_list)
+    file(os.path.join(top_dir, 'index.html'), 'w').write(html)
+         
 
 def print_version():
     print "puffin publishing system %d.%d" % (MAJOR, MINOR)
@@ -98,5 +99,8 @@ if __name__ == '__main__':
     init_posts(output_dir)
     file_list = get_files(target)
     process_files(file_list, output_dir)
+    create_frontpage(file_list, output_dir)
+    [create_page(f) for f in file_list]
+    
     
         
