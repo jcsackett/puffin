@@ -6,34 +6,13 @@ puffin.py
 written by j.c.sackett on 2.19.2009
 """
 from optparse import OptionParser
-from jinja2 import Environment, PackageLoader
 
 import sys
 import os
-import markdown2
 import subprocess
 
 MAJOR = 0
-MINOR = 1
-
-ENV = Environment(loader=PackageLoader('puffin', 'templates'))
-
-class post:
-    def __init__(self, file_path, dest):
-        self.read_path = file_path
-        self.write_path = file_path.replace(dest, '').replace('//', '/').replace('.txt', '.html')
-        self.title = os.path.split(file_path)[-1].split('.')[0].replace('_', ' ')
-        if self.write_path.startswith('/'):
-            self.url = self.write_path[1:]
-        else:
-            self.url = self.write_path
-        self.content = ''
-        
-def init_posts(output_dir):
-    try:
-        os.mkdir(output_dir)
-    except OSError:
-        print 'Post directory already exists. Use -r or --rebuild to force overwrite.'
+MINOR = 2
 
 def get_files(dest):
     files = []
@@ -44,6 +23,13 @@ def get_files(dest):
             f = post(path,dest)
             files.append(f)
     return files
+    
+def init_posts(output_dir):
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print 'Post directory already exists. Use -r or --rebuild to force overwrite.'
+
 
 def process_files(file_list, output_dir):
     print 'Processing markdown for %s...' % [f.read_path for f in file_list]
