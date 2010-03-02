@@ -1,0 +1,28 @@
+Uninstalling nose:
+  /Library/Python/2.6/site-packages/nose
+  /Library/Python/2.6/site-packages/nose-0.11.1-py2.6.egg-info
+  /System/Library/Frameworks/Python.framework/Versions/2.6/man/man1/nosetests.1
+  /usr/local/bin/nosetests
+  /usr/local/bin/nosetests-2.6
+  Removing file or directory /Library/Python/2.6/site-packages/nose
+Exception:
+Traceback (most recent call last):
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/basecommand.py", line 115, in main
+    self.run(options, args)
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/commands/uninstall.py", line 37, in run
+    requirement_set.uninstall(auto_confirm=options.yes)
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/req.py", line 763, in uninstall
+    req.uninstall(auto_confirm=auto_confirm)
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/req.py", line 452, in uninstall
+    paths_to_remove.remove(auto_confirm)
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/req.py", line 1464, in remove
+    renames(path, new_path)
+  File "/Library/Python/2.6/site-packages/pip-0.6.3-py2.6.egg/pip/util.py", line 312, in renames
+    shutil.move(old, new)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/shutil.py", line 262, in move
+    rmtree(src)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/shutil.py", line 221, in rmtree
+    onerror(os.remove, fullname, sys.exc_info())
+  File "/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/shutil.py", line 219, in rmtree
+    os.remove(fullname)
+OSError: [Errno 13] Permission denied: '/Library/Python/2.6/site-packages/nose/__init__.py'
