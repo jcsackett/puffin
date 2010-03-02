@@ -10,7 +10,7 @@ def test_render():
     test_file = os.path.join(test_path, 'test.txt')
     p = puffin.Puffin(test_file)
     data = p.render()
-    assert('<h1>Test</h1>' in data)
+    assert('<h1>Test Script</h1>' in data)
     assert('This is some text' in data)
 
 def test_render_to_file():
@@ -18,4 +18,4 @@ def test_render_to_file():
     test_file = os.path.join(test_path, 'test.txt')
     p = puffin.Puffin(test_file)
     p.render_to_file()
-    assert('test.html' in os.listdir('.'))
+    assert('test.html' in os.listdir(test_path))
